@@ -365,13 +365,6 @@ jobs:
             patch -p1 -F3 --forward < clear_page_16bytes_align__pi.patch
           fi
 
-      - name: Add BBG
-        run: |
-          cd "$KERNEL_ROOT"
-          echo "Adding BBG..."
-          wget -O- https://github.com/vc-teahouse/Baseband-guard/raw/main/setup.sh | bash
-          echo "CONFIG_BBG=y" >> common/arch/arm64/configs/gki_defconfig
-          sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/lockdown/lockdown,baseband_guard/ } }' common/security/Kconfig
 
       - name: Apply Module Check Bypass
         if: ${{ matrix.build_type == 'bypass' }}
@@ -496,6 +489,9 @@ jobs:
           echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> "${{ env.DEFCONFIG }}"
           echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> "${{ env.DEFCONFIG }}"
           echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> "${{ env.DEFCONFIG }}"
+          echo "CONFIG_RANDOMIZE_BASE=y" >> "${{ env.DEFCONFIG }}"
+          echo "CONFIG_DEVMEM=y" >> "${{ env.DEFCONFIG }}"
+          echo "CONFIG_STRICT_DEVMEM=n" >> "${{ env.DEFCONFIG }}"
 
       - name: Configure SND
         if: ${{ inputs.variant == 'vTomsonek' && inputs.android_version == 'android12' && inputs.kernel_version == '5.10' && inputs.sub_level == '226' && inputs.os_patch_level == '2024-11' }}
